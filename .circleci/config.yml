@@ -37,13 +37,46 @@ jobs:
           name: "Say Japan"
           command: "echo Hello, Japan!"
 
+ create-file:
+    docker:
+      # Specify the version you desire here
+      # See: https://circleci.com/developer/images/image/cimg/base
+      - image: cimg/base:current
+
+    # Add steps to the job
+    # See: https://circleci.com/docs/jobs-steps/#steps-overview & https://circleci.com/docs/configuration-reference/#steps
+    steps:
+      # Checkout the code as the first step.
+      - checkout
+      - run:
+          name: "create file"
+          command: |
+            mkdir -p workspace && touch workspace/file.txt
+
+
+ ls-file:
+    docker:
+      # Specify the version you desire here
+      # See: https://circleci.com/developer/images/image/cimg/base
+      - image: cimg/base:current
+
+    # Add steps to the job
+    # See: https://circleci.com/docs/jobs-steps/#steps-overview & https://circleci.com/docs/configuration-reference/#steps
+    steps:
+      # Checkout the code as the first step.
+      - checkout
+      - run:
+          name: "ls file"
+          command: "ls /tmp/workspace/file.txt"
+
+
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/workflows/ & https://circleci.com/docs/configuration-reference/#workflows
 workflows:
   say-hello-workflow: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
-      - say-hello
-      - say-japan:
+      - create-file
+      - ls-file:
           requires:
-           - say-hello
+            -create-file
