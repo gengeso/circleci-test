@@ -79,4 +79,4 @@ workflows:
       - create-file
       - ls-file:
           requires:
-            -create-file
+            - create-file
