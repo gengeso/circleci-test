@@ -1,29 +1,40 @@
 version: 2.1
 
 jobs:
-  first_job:
+  create-file:
+    working_directory: "/home/circleci/tmp"
     docker:
-      - image: circleci/openjdk:8-jdk  # お使いの環境に合わせてDockerイメージを指定してください
+      - image: cimg/base:current
     steps:
-      - run:
-          name: Create directory and file
-          command: mkdir -p workspace && touch workspace/file.txt
-
-  second_job:
-    docker:
-      - image: circleci/openjdk:8-jdk  # お使いの環境に合わせてDockerイメージを指定してください
-    steps:
+      # Checkout the code as the first step.
       - checkout
       - run:
-          name: Check file existence
-          command: ls workspace/file.txt
+          name: "create file"
+          command: |
+            mkdir -p workspace && touch workspace/file.txt
+            ls /home/circleci/tmp/workspace/file.txt
+      - persist_to_workspace:
+          root: /home/circleci/tmp/workspace
+          paths:
+            - file.txt
+
+  ls-file:
+    working_directory: "/home/circleci/tmp"
+    docker:
+      - image: cimg/base:current
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /home/circleci/tmp/workspace
+      - run:
+          name: "ls file"
+          command: "ls /home/circleci/tmp/workspace/file.txt"
 
 workflows:
-  version: 2
-  build_and_test:
+  say-hello-workflow: # This is the name of the workflow, feel free to change it to better match your workflow.
     jobs:
-      - first_job
-      - second_job:
+      - create-file
+      - ls-file:
           requires:
-            - first_job
+            - create-file
 
